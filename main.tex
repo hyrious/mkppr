@@ -9,7 +9,7 @@
 % * tikz-uml.sty -- https://perso.ensta-paristech.fr/~kielbasi/tikzuml
 % notice: can't use CJK in it
 
-\documentclass[UTF8,12pt]{ctexrep}
+\documentclass[UTF8,12pt,AutoFakeBold]{ctexrep}
 
 \usepackage{silence} % used to shut up minitoc
 \WarningFilter{minitoc(hints)}{W0023}
@@ -20,10 +20,9 @@
 % many bugs when using minitoc with other packages, check the link below
 % https://mirror.hmc.edu/ctan/macros/latex/contrib/minitoc/minitoc.bug
 
-\usepackage{geometry,array,tabularx,multirow,makecell,minitoc}
-\usepackage{hyperref,graphicx,float}
-\usepackage{jslistings}
-\usepackage{tikz-uml}
+\usepackage{geometry,array,tabularx,multirow,makecell,minitoc,jslistings}
+\usepackage{hyperref,graphicx,float,tikz-uml}
+\tikzumlset{font=\ttfamily}
 \geometry{a4paper,centering,scale=0.8}
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
 \newenvironment{cover}
