@@ -1,0 +1,56 @@
+% !TEX program  = xelatex
+% !TeX encoding = UTF-8
+
+% Copyright (C) 2018 by hyrious <hyrious@outlook.com>
+
+% put the two sty file here:
+% * jslistings.sty -- https://github.com/xgirma/latex-javaScript
+% modify this line: \usepackage[xetex]{xcolor}
+% * tikz-uml.sty -- https://perso.ensta-paristech.fr/~kielbasi/tikzuml
+% notice: can't use CJK in it
+
+\documentclass[UTF8,12pt]{ctexrep}
+
+\usepackage{silence} % used to shut up minitoc
+\WarningFilter{minitoc(hints)}{W0023}
+\WarningFilter{minitoc(hints)}{W0024}
+\WarningFilter{minitoc(hints)}{W0028}
+\WarningFilter{minitoc(hints)}{W0030}
+\WarningFilter{minitoc(hints)}{W0033}
+% many bugs when using minitoc with other packages, check the link below
+% https://mirror.hmc.edu/ctan/macros/latex/contrib/minitoc/minitoc.bug
+
+\usepackage{geometry,array,tabularx,multirow,makecell,minitoc}
+\usepackage{hyperref,graphicx,float}
+\usepackage{jslistings}
+\usepackage{tikz-uml}
+\geometry{a4paper,centering,scale=0.8}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newenvironment{cover}
+  {\clearpage\vspace*{\fill}\begin{center}}
+  {\end{center}\vfill\clearpage}
+\newcommand{\mychapter}[1]{\chapter{#1}\clearpage\minitoc\clearpage}
+
+\title{Perfect Paper}
+\author{hyrious}
+\date{\today}
+\hypersetup{hidelinks,pdftitle={Worst Paper},pdfauthor={hyrious}}
+
+\begin{document}
+\pagestyle{empty} % remove page number
+
+%\include{0-preface}
+
+\dominitoc
+\pagestyle{plain} % add it again
+\tableofcontents
+
+%\include{1-feasibility}
+%\include{2-requirement}
+%\include{3-systemdesign}
+%\include{4-codesample}
+%\include{5-testing}
+%\include{6-deployment}
+%\include{7-manual}
+
+\end{document}
