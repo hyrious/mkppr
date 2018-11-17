@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>md2tex-preview</title>
+<style>
+  * { box-sizing: border-box }
+  html { height: 100%; display: flex; flex-direction: column }
+  body { flex: 1; display: grid; grid-template-columns: 1fr 1fr; grid-gap: 8px }
+  textarea { resize: none }
+</style>
+<body>
+
+<textarea id="md" onchange="convert(this)"># markdown here</textarea>
+<textarea id="tex">\chapter{tex here}</textarea>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.5.1/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.12.0/js-yaml.min.js"></script>
+<script>
+  'use strict'
+  const p = x => '\n\n' + x
+  const t = a => '\\' + a // \tag
+  const s = a => b => t(a) + '{' + b + '}' // \span{b}
+  const e = a => b => p(s('begin')(a)) + b + '\n' + s('end')(a) // \begin{env}_\end{env}
+  const nl = '\\\\'
+
+  const quoted = e('quote')
+  const Hs = [0, 'mychapter', 'section', 'subsection', 'subsubsection', 'paragraph']
+  const heading = i => t => p(s(Hs[i])(t))
+  const col = n => t => s('multicolumn')(n) + '{l|}{' + t + '}'
+  const row = n => t => s('multirow')(n) + '*{' + t + '}'
+
+  const { Renderer } = marked
+  const renderer = new Renderer
+  Object.assign(renderer, {
+    code: (code, language, escaped) => {
+      if (language === 'case') {
+        const d = jsyaml.safeLoad(code.replace('：', ': '))
+        let ret = '\n  ' + t('hline') + '\n '
+        let take = n => ret += ' ' + n + ' & ' + d[n]
+        take('用例编号'); ret += ' &'; take('用例名称')
+        const hl = () => ret += ' ' + nl + ' ' + t('hline') + '\n  '
+        take = n => (hl(), ret += n + ' & ' + col(3)(d[n]))
+        take('描述'); take('参与者'); hl()
+        const sjl = d['事件流']
+        const jbsjl = sjl['基本事件流']
+        const bxsjl = sjl['备选事件流']
+        const sjlLength = jbsjl.length + bxsjl.length
+        ret += row(sjlLength)('事件流') + '\n    '
+        ret += '& ' + row(jbsjl.length)('基本事件流') + '\n'
+        for (const [i, l] of Object.entries(jbsjl)) {
+          const prefix = (+i ? '& & ' : '  & ')
+          ret += '    ' + prefix + col(2)(l) + ' ' + nl + '\n'
+        }
+        ret += '        ' + s('cline')('2-4') + '\n    '
+        ret += '& ' + row(bxsjl.length)('备选事件流') + '\n'
+        let flag = null
+        for (const [i, l] of Object.entries(bxsjl)) {
+          const prefix = (+i ? '& & ' : '  & ')
+          let feature = l.match(/^(.+)\.\d\s.+$/)
+          feature = feature ? feature[1] : null
+          if (flag == null)
+            flag = feature
+          else if (flag !== feature) {
+            flag = feature
+            ret += '        ' + s('cline')('3-4') + '\n'
+          }
+          ret += '    ' + prefix + col(2)(l) + ' ' + nl + '\n'
+        }
+        take = n =>
+        ret += t('hline') + '\n  ' + n + ' & ' + col(3)(d[n]) + ' ' + nl + ' '
+        ret += '  '; take('前置条件'); take('后置条件')
+        ret += '\n  ' + t('hline')
+        return e('table')('[H]\n' +
+          e('tabularx')('{\\textwidth}{|c|l|l|X|}' + ret))
+      }
+      return e('lstlisting')('[language=' + language + ']\n' + code)
+    },
+    blockquote: quote => quoted(quote),
+    heading: (text, level) => heading(level)(text),
+    hr: () => t('clearpage'),
+    list: (body, o, start) => e(o ? 'enumerate' : 'itemize')(body),
+    listitem: text => '\n' + t('item') + ' ' + text,
+    paragraph: text => p(text),
+    strong: text => s('textbf')(text),
+    em: text => s('emph')(text),
+    codespan: text => s('texttt')(text),
+    br: text => '\\\\'
+  })
+  function filter(text) {
+    text = text.replace(/^(\\begin{table}\[H\])\s*\n/gm, '$1\n')
+    return text
+  }
+  function convert(md) {
+    tex.value = filter(marked(md.value, { renderer }).trim())
+  }
+</script>
